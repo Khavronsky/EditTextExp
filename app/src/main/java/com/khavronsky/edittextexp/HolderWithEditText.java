@@ -9,11 +9,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TextView;
 
-public class Holder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-    private TextView tv_item;
+public class HolderWithEditText extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     private EditText editableAnswer;
 
@@ -28,16 +25,20 @@ public class Holder extends RecyclerView.ViewHolder implements View.OnClickListe
     private TextWatcher mTextWatcher;
 
     private QuestionsModel.Answer answer;
-    private final static String TAG = "Quest1";
 
-    Holder(View view) {
+    private final static String TAG = "HWET";
+
+    HolderWithEditText(View view) {
         super(view);
-        Log.d(TAG, "Holder: ");
-        tv_item = (TextView) view.findViewById(R.id.qstn_answer);
         checkBox = (CheckBox) view.findViewById(R.id.qstn_checkbox);
         answerItem = view.findViewById(R.id.qstn_answer_item);
         editableAnswer = (EditText) view.findViewById(R.id.qstn_editable_answer);
-        changeVisibility(false);
+        superLogger("constructor before");
+        editableAnswer.setOnFocusChangeListener(createFocusListener());
+        editableAnswer.setOnClickListener(this);
+        answerItem.setOnClickListener(this);
+//        answerItem.setFocusableInTouchMode(true);
+        superLogger("constructor after");
         setTextWatcher();
     }
 
@@ -68,21 +69,10 @@ public class Holder extends RecyclerView.ViewHolder implements View.OnClickListe
 
     void setAnswer(QuestionsModel.Answer answer, int backgroundSource) {
         this.answer = answer;
-        Log.d(TAG, "setAnswer() answerID = [" + answer.getId() + "]" + "editable = " + answer.isEditable());
-        editableAnswer.setOnClickListener(this);
-        if (answer.isEditable()) {
-            tv_item.setVisibility(View.GONE);
-            editableAnswer.setVisibility(View.VISIBLE);
-            editableAnswer.setText(answer.getAnswer());
-        } else {
-            editableAnswer.setVisibility(View.GONE);
-
-            tv_item.setVisibility(View.VISIBLE);
-            tv_item.setText(answer.getAnswer());
-        }
-        answerItem.setOnClickListener(this);
+        editableAnswer.setText(answer.getAnswer());
         checkBox.setChecked(answer.isSelected());
         checkBox.setBackgroundResource(backgroundSource);
+        superLogger("setAnswer");
     }
 
     void setListener(ICheckListener listener, int pos) {
@@ -90,30 +80,39 @@ public class Holder extends RecyclerView.ViewHolder implements View.OnClickListe
         this.pos = pos;
     }
 
+    private View.OnFocusChangeListener createFocusListener() {
+        return (v, hasFocus) -> {
+            if (hasFocus) {
+                listener.check(checkBox.isChecked(), pos);
+                superLogger("createFocusListener");
+            }
+        };
+    }
+
     @Override
     public void onClick(View v) {
         if (listener != null) {
-            Log.d(TAG, "onClick: ");
             listener.check(checkBox.isChecked(), pos);
-
-            if (answer.isEditable()) {
-                changeVisibility(true);
-                editableAnswer.addTextChangedListener(mTextWatcher);
-                if (answer.getAnswer() != null) {
-                    editableAnswer.setSelection(answer.getAnswer().length());
-                }
-            } else {
-                changeVisibility(false);
+//            editableAnswer.setFocusable(true);
+//            editableAnswer.requestFocus();
+            editableAnswer.addTextChangedListener(mTextWatcher);
+            if (answer.getAnswer() != null) {
+                editableAnswer.setSelection(answer.getAnswer().length());
             }
+            superLogger("onClick");
+
         }
     }
 
-    private void changeVisibility(boolean visibility) {
-        Log.d(TAG, "changeVisibility = [" + visibility + "]");
-        editableAnswer.setClickable(visibility);
-        editableAnswer.setFocusableInTouchMode(visibility);
-        editableAnswer.setFocusable(visibility);
-        editableAnswer.setCursorVisible(visibility);
+    void superLogger(String tag){
+        Log.d(TAG, "<--!!- " + tag + " -!!-->----------------->------------------->\n");
+        Log.d(TAG, " isClickable            " + editableAnswer.isClickable());
+        Log.d(TAG, " isFocused              " + editableAnswer.isFocused());
+        Log.d(TAG, " isFocusable            " + editableAnswer.isFocusable());
+        Log.d(TAG, " isFocusableInTouchMode " + editableAnswer.isFocusableInTouchMode());
+        Log.d(TAG, " isCursorVisible        " + editableAnswer.isCursorVisible());
+//        Log.d(TAG, " " + editableAnswer.);
+//        Log.d(TAG, " " + editableAnswer.);
     }
 
     interface ICheckListener {
