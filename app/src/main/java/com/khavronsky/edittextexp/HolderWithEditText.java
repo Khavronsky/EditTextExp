@@ -28,8 +28,11 @@ public class HolderWithEditText extends RecyclerView.ViewHolder implements View.
 
     private final static String TAG = "HWET";
 
-    HolderWithEditText(View view) {
+    HolderWithEditText(View view, ICheckListener listener) {
         super(view);
+
+        this.listener = listener;
+
         checkBox = (CheckBox) view.findViewById(R.id.qstn_checkbox);
 //        answerItem = view.findViewById(R.id.qstn_answer_item);
         editableAnswer = (EditText) view.findViewById(R.id.qstn_editable_answer);
@@ -37,8 +40,19 @@ public class HolderWithEditText extends RecyclerView.ViewHolder implements View.
 //        answerItem.setFocusableInTouchMode(true);
         setTextWatcher();
         view.setOnClickListener(this);
-        editableAnswer.setOnClickListener(this);
+//        editableAnswer.setOnClickListener(this);
         editableAnswer.addTextChangedListener(mTextWatcher);
+
+        editableAnswer.setOnFocusChangeListener((v, hasFocus) ->
+        {
+
+            if (!Adapter.onBind&&hasFocus) {
+                listener.check(checkBox.isChecked(), getAdapterPosition());
+
+            }
+
+
+        });
 //        editableAnswer.setOnFocusChangeListener(createFocusListener());
 //        editableAnswer.setOnTouchListener((v, event) -> {
 //            Log.d(TAG, "OnTouchListener: ");
@@ -74,60 +88,51 @@ public class HolderWithEditText extends RecyclerView.ViewHolder implements View.
     }
 
 
-
     void setAnswer(QuestionsModel.Answer answer, int backgroundSource) {
 //        superLogger("setAnswer_BEFORE");
         this.answer = answer;
-        editableAnswer.clearFocus();
+//        editableAnswer.clearFocus();
         editableAnswer.setText(answer.getAnswer());
         checkBox.setChecked(answer.isSelected());
         checkBox.setBackgroundResource(backgroundSource);
-        if (answer.isSelected()){
-            editableAnswer.requestFocus();
-        }
-//        superLogger("setAnswer_AFTER");
-        editableAnswer.setOnFocusChangeListener(createFocusListener());
-    }
 
-    void setListener(ICheckListener listener) {
-        this.listener = listener;
+        Log.d(TAG, "setAnswer: answer.isSelected() " + answer.isSelected());
 
-    }
 
-    private View.OnFocusChangeListener createFocusListener() {
-        return (v, hasFocus) -> {
-            if (hasFocus) {
-                Log.d(TAG, "createFocusListener: true");
-                if (listener != null) {
-//                    listener.check(checkBox.isChecked(), getAdapterPosition());
-                }
-            } else {
-                Log.d(TAG, "createFocusListener: false");
+        if (answer.isSelected()) {
+            if (!editableAnswer.isFocused()) {
+                editableAnswer.requestFocus();
             }
-        };
+
+        } else if (editableAnswer.isFocused()) {
+            editableAnswer.clearFocus();
+        }
+
+//        superLogger("setAnswer_AFTER");
+//        editableAnswer.setOnFocusChangeListener(createFocusListener());
     }
+
 
     @Override
     public void onClick(View v) {
+
+        Log.d(TAG, "onClick: ");
         if (listener != null) {
+//            listener.check(checkBox.isChecked(), getAdapterPosition());
             listener.check(checkBox.isChecked(), getAdapterPosition());
-            editableAnswer.setFocusable(true);
-            editableAnswer.setCursorVisible(true);
-            editableAnswer.requestFocus();
             superLogger("click");
 //            editableAnswer.setFocusable(true);
 //            editableAnswer.requestFocus();
 
-
-            if (answer.getAnswer() != null) {
-                editableAnswer.setSelection(answer.getAnswer().length());
-            }
+//            if (answer.getAnswer() != null) {
+//                editableAnswer.setSelection(answer.getAnswer().length());
+//            }
 //            superLogger("onClick");
 
         }
     }
 
-    private void superLogger(String tag){
+    private void superLogger(String tag) {
         Log.d(TAG, "<--!!- " + tag + " -!!-->----------------->------------------->\n");
         Log.d(TAG, " isClickable            " + editableAnswer.isClickable());
         Log.d(TAG, " isFocused              " + editableAnswer.isFocused());

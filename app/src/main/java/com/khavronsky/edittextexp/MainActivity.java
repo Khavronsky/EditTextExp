@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(mAdapter);
-        mAdapter.setIQDListener(mAdapter::notifyDataSetChanged);
+
     }
 
     void createModel() {
