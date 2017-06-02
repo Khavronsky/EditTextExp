@@ -2,7 +2,6 @@ package com.khavronsky.edittextexp;
 
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
@@ -17,25 +16,15 @@ public class HolderWithTextView extends RecyclerView.ViewHolder implements View.
 
     private View answerItem;
 
-
-
-    private QuestionsModel.Answer answer;
-
-    private final static String TAG = "Quest1";
-
     HolderWithTextView(View view,ICheckListener listener) {
         super(view);
-        Log.d(TAG, "Holder: ");
+        this.listener = listener;
         tv_item = (TextView) view.findViewById(R.id.qstn_answer);
         checkBox = (CheckBox) view.findViewById(R.id.qstn_checkbox);
         answerItem = view.findViewById(R.id.qstn_answer_item);
-
-        this.listener = listener;
-
     }
 
-    void setAnswer(QuestionsModel.Answer answer, int backgroundSource) {
-        this.answer = answer;
+    void bind(QuestionsModel.Answer answer, int backgroundSource) {
         tv_item.setText(answer.getAnswer());
         answerItem.setOnClickListener(this);
         checkBox.setChecked(answer.isSelected());

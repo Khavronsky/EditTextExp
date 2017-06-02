@@ -3,14 +3,11 @@ package com.khavronsky.edittextexp;
 
 import android.support.annotation.IntDef;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.List;
-
-import static android.content.ContentValues.TAG;
 
 public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements HolderWithTextView.ICheckListener, HolderWithEditText.ICheckListener {
@@ -41,11 +38,11 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 .inflate(viewType, parent, false);
 
         if (viewType == R.layout.qstn_holder_item) {
-            return new HolderWithTextView(v,this);
+            return new HolderWithTextView(v, this);
         }
         if (viewType == R.layout.qstn_holder_edit_text_item) {
 
-            return new HolderWithEditText(v,this);
+            return new HolderWithEditText(v, this);
         }
         return null;
     }
@@ -59,24 +56,17 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
 
-
-    public static boolean onBind=false;
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
-        onBind=true;
-
 
         if (holder instanceof HolderWithTextView) {
-
-            ((HolderWithTextView) holder).setAnswer(mQuestion.getAnswers().get(position),
+            ((HolderWithTextView) holder).bind(mQuestion.getAnswers().get(position),
                     setCheckBoxDrawable(mQuestion.isMultiChoice()));
         }
         if (holder instanceof HolderWithEditText) {
-
-            ((HolderWithEditText) holder).setAnswer(mQuestion.getAnswers().get(position), setCheckBoxDrawable
+            ((HolderWithEditText) holder).bind(mQuestion.getAnswers().get(position), setCheckBoxDrawable
                     (mQuestion.isMultiChoice()));
         }
-        onBind=false;
     }
 
     @Override
@@ -84,14 +74,10 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return mQuestion != null && mQuestion.getAnswers() != null ? mQuestion.getAnswers().size() : 0;
     }
 
-
     @Override
     public void check(boolean isChecked, int pos) {
-        Log.d("check", "check: ");
         List<QuestionsModel.Answer> answers = mQuestion.getAnswers();
-
         if (!mQuestion.isMultiChoice()) {
-            Log.d(TAG, "check: ");
             for (int i = 0; i < mQuestion.getAnswers().size(); i++) {
                 answers.get(i).setSelected(false);
             }
@@ -99,7 +85,6 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         } else {
             answers.get(pos).setSelected(!isChecked);
         }
-
         notifyDataSetChanged();
     }
 
@@ -107,6 +92,4 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private int setCheckBoxDrawable(boolean multiChoice) {
         return multiChoice ? CHECK_TYPE : RADIO_TYPE;
     }
-
-
 }
