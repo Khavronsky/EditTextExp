@@ -3,6 +3,7 @@ package com.khavronsky.edittextexp;
 
 import android.support.annotation.IntDef;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,7 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     Adapter(QuestionsModel question) {
         this.mQuestion = question;
     }
+
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -62,7 +64,7 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     setCheckBoxDrawable(mQuestion.isMultiChoice()));
         }
         if (holder instanceof HolderWithEditText) {
-            ((HolderWithEditText)holder).setListener(this, position);
+            ((HolderWithEditText)holder).setListener(this);
             ((HolderWithEditText)holder).setAnswer(mQuestion.getAnswers().get(position), setCheckBoxDrawable
                     (mQuestion.isMultiChoice()));
         }
@@ -79,6 +81,7 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public void check(boolean isChecked, int pos) {
+        Log.d("check", "check: ");
         List<QuestionsModel.Answer> answers = mQuestion.getAnswers();
 
         if (!mQuestion.isMultiChoice()) {
@@ -89,7 +92,8 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         } else {
             answers.get(pos).setSelected(!isChecked);
         }
-        mListener.selectItem();
+
+        notifyDataSetChanged();
     }
 
     @CheckBoxType
