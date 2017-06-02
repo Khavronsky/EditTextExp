@@ -10,12 +10,13 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
+import static android.content.ContentValues.TAG;
+
 public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements HolderWithTextView.ICheckListener, HolderWithEditText.ICheckListener {
 
     private QuestionsModel mQuestion;
 
-    private IAnswersListener mListener;
 
     @IntDef({
             RADIO_TYPE,
@@ -36,14 +37,15 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == 0) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.qstn_holder_item, parent, false);
-            return new HolderWithTextView(v);
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(viewType, parent, false);
+
+        if (viewType == R.layout.qstn_holder_item) {
+            return new HolderWithTextView(v,this);
         }
-        if (viewType == 1) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.qstn_holder_edit_text_item, parent, false);
-            return new HolderWithEditText(v);
+        if (viewType == R.layout.qstn_holder_edit_text_item) {
+
+            return new HolderWithEditText(v,this);
         }
         return null;
     }
@@ -51,23 +53,30 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public int getItemViewType(final int position) {
         if (mQuestion.getAnswers().get(position).isEditable()) {
-            return 1;
+            return R.layout.qstn_holder_edit_text_item;
         }
-        return 0;
+        return R.layout.qstn_holder_item;
     }
 
+
+
+    public static boolean onBind=false;
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
+        onBind=true;
+
+
         if (holder instanceof HolderWithTextView) {
-            ((HolderWithTextView) holder).setListener(this, position);
+
             ((HolderWithTextView) holder).setAnswer(mQuestion.getAnswers().get(position),
                     setCheckBoxDrawable(mQuestion.isMultiChoice()));
         }
         if (holder instanceof HolderWithEditText) {
-            ((HolderWithEditText)holder).setListener(this);
-            ((HolderWithEditText)holder).setAnswer(mQuestion.getAnswers().get(position), setCheckBoxDrawable
+
+            ((HolderWithEditText) holder).setAnswer(mQuestion.getAnswers().get(position), setCheckBoxDrawable
                     (mQuestion.isMultiChoice()));
         }
+        onBind=false;
     }
 
     @Override
@@ -75,9 +84,6 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return mQuestion != null && mQuestion.getAnswers() != null ? mQuestion.getAnswers().size() : 0;
     }
 
-    void setIQDListener(IAnswersListener listener) {
-        this.mListener = listener;
-    }
 
     @Override
     public void check(boolean isChecked, int pos) {
@@ -85,6 +91,7 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         List<QuestionsModel.Answer> answers = mQuestion.getAnswers();
 
         if (!mQuestion.isMultiChoice()) {
+            Log.d(TAG, "check: ");
             for (int i = 0; i < mQuestion.getAnswers().size(); i++) {
                 answers.get(i).setSelected(false);
             }
@@ -101,9 +108,5 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return multiChoice ? CHECK_TYPE : RADIO_TYPE;
     }
 
-    interface IAnswersListener {
-
-        void selectItem();
-    }
 
 }

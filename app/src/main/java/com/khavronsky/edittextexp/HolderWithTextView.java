@@ -17,18 +17,21 @@ public class HolderWithTextView extends RecyclerView.ViewHolder implements View.
 
     private View answerItem;
 
-    private int pos;
+
 
     private QuestionsModel.Answer answer;
 
     private final static String TAG = "Quest1";
 
-    HolderWithTextView(View view) {
+    HolderWithTextView(View view,ICheckListener listener) {
         super(view);
         Log.d(TAG, "Holder: ");
         tv_item = (TextView) view.findViewById(R.id.qstn_answer);
         checkBox = (CheckBox) view.findViewById(R.id.qstn_checkbox);
         answerItem = view.findViewById(R.id.qstn_answer_item);
+
+        this.listener = listener;
+
     }
 
     void setAnswer(QuestionsModel.Answer answer, int backgroundSource) {
@@ -39,15 +42,12 @@ public class HolderWithTextView extends RecyclerView.ViewHolder implements View.
         checkBox.setBackgroundResource(backgroundSource);
     }
 
-    void setListener(ICheckListener listener, int pos) {
-        this.listener = listener;
-        this.pos = pos;
-    }
+
 
     @Override
     public void onClick(View v) {
         if (listener != null) {
-            listener.check(checkBox.isChecked(), pos);
+            listener.check(checkBox.isChecked(), getAdapterPosition());
         }
     }
 
