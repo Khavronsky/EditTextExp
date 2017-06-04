@@ -47,6 +47,8 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return null;
     }
 
+
+
     @Override
     public int getItemViewType(final int position) {
         if (mQuestion.getAnswers().get(position).isEditable()) {
